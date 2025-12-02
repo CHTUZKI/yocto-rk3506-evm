@@ -11,7 +11,7 @@
 | 处理器 | Rockchip RK3506G2 (3x Cortex-A7) |
 | 主频 | 1.5GHz |
 | 内存 | 128MB DDR3L 内置|
-| 存储 | 256MB Nand Flash |
+| 存储 | SD卡启动 |
 | 显示接口 | MIPI DSI 2 Lane (1280x1280@60Hz), RGB888 (1280x1280@60Hz) |
 
 ## meta-rockchip BSP 层

@@ -21,6 +21,8 @@ hob-image-*.bb
 !meta-yocto-bsp
 !meta-yocto-imported
 !meta-rockchip
+!meta-openembedded
+!meta-qt5
 /documentation/*/eclipse/
 /documentation/*/*.html
 /documentation/*/*.pdf
