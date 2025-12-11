@@ -1,0 +1,152 @@
+---------------------------------------------
+# RK3506G Core EVM (SD卡启动) 构建命令
+# 机器配置: rockchip-rk3506g-core-evm
+# 镜像: rk3506g-sd-core-image-minimal
+
+# 1. 设置环境
+cd /home/xuning/rk3506-new
+source poky/oe-init-build-env build
+
+# 2. 设置机器类型（如果 local.conf 中未设置）
+# MACHINE = "rockchip-rk3506g-core-evm"
+
+# 3. 完全清理产生的镜像并进行构建
+bitbake -c cleanall rk3506g-sd-core-image-minimal
+bitbake rk3506g-sd-core-image-minimal
+---------------------------------------------
+
+
+---------------------------------------------
+# RK3506B Core EVM (eMMC启动) 构建命令
+# 机器配置: rockchip-rk3506b-core-evm
+# 镜像: rk3506b-emmc-core-image-minimal
+
+# 1. 设置环境
+cd /home/xuning/rk3506-new
+source poky/oe-init-build-env build
+
+# 2. 设置机器类型（在 local.conf 中设置）
+# MACHINE = "rockchip-rk3506b-core-evm"
+
+# 3. 完全清理产生的镜像并进行构建
+bitbake -c cleanall rk3506b-emmc-core-image-minimal
+bitbake rk3506b-emmc-core-image-minimal
+---------------------------------------------
+
+
+---------------------------------------------
+#更改内核配置使用
+
+bitbake linux-rockchip -c configure -f
+bitbake linux-rockchip
+# 然后构建对应的镜像
+# RK3506G: bitbake rk3506g-sd-core-image-minimal
+# RK3506B: bitbake rk3506b-emmc-core-image-minimal
+---------------------------------------------
+
+
+---------------------------------------------
+#只清理构建缓存，不清理下载的源码包
+
+# 1. 设置环境
+cd /home/xuning/rk3506-new
+source poky/oe-init-build-env build
+
+# 2. 清理内核
+bitbake -c cleansstate linux-rockchip
+bitbake linux-rockchip
+
+# 3. 清理uboot
+bitbake -c cleansstate u-boot-rockchip
+bitbake u-boot-rockchip
+bitbake linux-rockchip
+
+# 4. 重新构建镜像（自动生成 update.img）
+# RK3506G:
+bitbake -c clean rk3506g-sd-core-image-minimal
+bitbake rk3506g-sd-core-image-minimal
+
+# RK3506B:
+# bitbake -c clean rk3506b-emmc-core-image-minimal
+# bitbake rk3506b-emmc-core-image-minimal
+
+-----------------------------------------------------
+
+
+-----------------------------------------------------
+# 完全清理下载的包和构建的文件
+
+# 1. 设置环境
+cd /home/xuning/rk3506-new
+source poky/oe-init-build-env build
+
+# 2. 清理内核
+bitbake -c cleanall linux-rockchip
+bitbake linux-rockchip
+
+# 3. 清理uboot
+bitbake -c cleanall u-boot-rockchip
+bitbake u-boot-rockchip
+
+# 4. 重新构建镜像（自动生成 update.img）
+# RK3506G:
+bitbake -c cleanall rk3506g-sd-core-image-minimal
+bitbake rk3506g-sd-core-image-minimal
+
+# RK3506B:
+# bitbake -c cleanall rk3506b-emmc-core-image-minimal
+# bitbake rk3506b-emmc-core-image-minimal
+-----------------------------------------------------
+
+
+---------------------------------------------
+# 切换板子构建
+# 在 build/conf/local.conf 中修改 MACHINE 变量
+
+# RK3506G (SD卡启动):
+# MACHINE = "rockchip-rk3506g-core-evm"
+# bitbake rk3506g-sd-core-image-minimal
+
+# RK3506B (eMMC启动):
+# MACHINE = "rockchip-rk3506b-core-evm"
+# bitbake rk3506b-emmc-core-image-minimal
+---------------------------------------------
+
+
+RKDevTool
+
+
+git add .
+git commit -m "Fix"
+
+bitbake -c cleansstate python3-pyqt5
+bitbake python3-pyqt5
+# 然后构建对应的镜像
+# RK3506G: bitbake rk3506g-sd-core-image-minimal
+# RK3506B: bitbake rk3506b-emmc-core-image-minimal
+
+
+cd /home/xuning/rk3506-new/build
+bitbake qtbase -c cleanall
+bitbake qtbase
+# 然后构建对应的镜像
+# RK3506G: bitbake rk3506g-sd-core-image-minimal
+# RK3506B: bitbake rk3506b-emmc-core-image-minimal
+
+
+
+
+
+
+
+
+
+
+# 1. 编辑 locale.gen 文件，取消注释 en_US.UTF-8
+sudo sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+
+# 2. 生成 locale
+sudo locale-gen
+
+# 3. 验证 locale 是否已安装
+locale -a | grep en_US.UTF-8

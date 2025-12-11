@@ -1,0 +1,12 @@
+[submodule "meta-openembedded"]
+	path = meta-openembedded
+	url = git://git.openembedded.org/meta-openembedded.git
+[submodule "meta-rockchip"]
+	path = meta-rockchip
+	url = https://github.com/JeffyCN/meta-rockchip.git
+[submodule "meta-qt5"]
+	path = meta-qt5
+	url = https://github.com/meta-qt5/meta-qt5.git
+[submodule "poky"]
+	path = poky
+	url = git://git.yoctoproject.org/poky.git

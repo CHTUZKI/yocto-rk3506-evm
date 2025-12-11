@@ -1,0 +1,11 @@
+# 忽略 build 目录下的所有内容
+build/*
+
+# 但是保留 build/conf 目录的跟踪
+!build/conf/
+!build/conf/**
+
+# 忽略 IDE 缓存
+.cursor/
+.cursorignore
+
