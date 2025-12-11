@@ -335,6 +335,8 @@
 		     &eth_rmii0_clk_pins>;
 
 	phy-handle = <&rmii_phy0>;
+	/* Fixed MAC address: da:40:4e:c0:94:55 */
+	local-mac-address = [da 40 4e c0 94 55];
 	status = "okay";
 };
 
@@ -350,6 +352,12 @@
 		assigned-clocks = <&cru CLK_MAC_OUT>;
 		assigned-clock-rates = <25000000>;
 	};
+};
+
+&uart0 {
+	/* UART0 must be disabled when FIQ debugger uses it */
+	/* FIQ debugger will take control of UART0 */
+	status = "disabled";
 };
 
 &uart3 {
@@ -409,5 +417,10 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&sdmmc_clk_pins &sdmmc_cmd_pins &sdmmc_bus4_pins>;
 	status = "okay";
+};
+
+/* Configure FIQ debugger to use 115200 baudrate */
+&fiq_debugger {
+	rockchip,baudrate = <115200>;
 };
 

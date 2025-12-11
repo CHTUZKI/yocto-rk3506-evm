@@ -5,12 +5,13 @@
 #
 
 # Configure LVGL to use DRM (default) or framebuffer
-# For RK3506, DRM is recommended for better performance
-# PACKAGECONFIG = "drm"
+# For RK3506, use framebuffer for stability (DRM has page fault issues)
+# Use := to override the default value from lv-conf.inc
+PACKAGECONFIG := "fbdev"
 
 # Alternative configurations (uncomment as needed):
-# For framebuffer support (more stable, try this if DRM has issues):
-PACKAGECONFIG = "fbdev"
+# For framebuffer only (more stable, try this if DRM has issues):
+# PACKAGECONFIG = "fbdev"
 # For SDL support (development/testing):
 # PACKAGECONFIG = "sdl"
 

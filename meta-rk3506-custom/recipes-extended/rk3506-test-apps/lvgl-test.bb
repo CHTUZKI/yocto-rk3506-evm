@@ -18,12 +18,12 @@ do_compile() {
 	cd ${S}
 	${CC} ${CFLAGS} \
 		-I${STAGING_INCDIR}/lvgl \
-		$(pkg-config --cflags libdrm) \
+		-I${STAGING_INCDIR}/libdrm \
 		${LDFLAGS} \
 		lvgl-test.c \
 		-o lvgl-test \
 		-llvgl \
-		$(pkg-config --libs libdrm) \
+		-ldrm \
 		-lpthread -lm
 }
 

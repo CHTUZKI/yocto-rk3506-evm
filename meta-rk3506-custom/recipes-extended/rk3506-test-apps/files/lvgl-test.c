@@ -4,8 +4,8 @@
  * This program demonstrates LVGL graphics library functionality
  * on RK3506 EVM with DSI display.
  * 
- * Note: This is a simplified test that uses LVGL's built-in display
- * driver initialization (DRM or framebuffer based on configuration).
+ * Note: DRM has stability issues on RK3506 (page faults), so we use
+ * framebuffer (fbdev) instead, which is more stable.
  * 
  * Usage: lvgl-test
  *   Press Ctrl+C to exit
@@ -288,70 +288,45 @@ int main(int argc, char *argv[])
     /* Declare input device variable (used in touchscreen initialization) */
     lv_indev_t * indev = NULL;
     
-    /* Initialize display driver */
-#if LV_USE_LINUX_DRM
-    printf("Initializing DRM display driver...\n");
-    const char *videocard = "/dev/dri/card0";
-    lv_display_t * disp = lv_linux_drm_create();
-    if(!disp) {
-        fprintf(stderr, "Failed to create DRM display\n");
+    /* Initialize display driver - use framebuffer (fbdev) for stability on RK3506 */
+    /* DRM has known stability issues (page faults) on this platform */
+    lv_display_t * disp = NULL;
+    
+#if LV_USE_LINUX_FBDEV
+    if(access("/dev/fb0", R_OK | W_OK) == 0) {
+        printf("Initializing framebuffer display driver...\n");
+        const char *videocard = "/dev/fb0";
+        disp = lv_linux_fbdev_create();
+        if(disp) {
+            lv_linux_fbdev_set_file(disp, videocard);
+            printf("Framebuffer display initialized: %s\n", videocard);
+            fflush(stdout);
+            
+            /* Framebuffer is ready immediately */
+            usleep(50000);  /* 50ms - brief delay to ensure init is complete */
+        } else {
+            fprintf(stderr, "Error: Failed to create framebuffer display\n");
+            return 1;
+        }
+    } else {
+        fprintf(stderr, "Error: /dev/fb0 not accessible\n");
+        fprintf(stderr, "Please ensure /dev/fb0 (framebuffer) is available\n");
         return 1;
     }
-    lv_linux_drm_set_file(disp, videocard, (int64_t)-1);
-    printf("DRM display initialized: %s\n", videocard);
-    fflush(stdout);
-    
-    /* Wait for DRM to be fully ready */
-    usleep(100000);  /* 100ms */
-    
-    /* Initialize tick before first render */
-    lv_tick_inc(10);
-    
-    /* Wait longer for DRM to be fully ready */
-    usleep(200000);  /* 200ms */
-    
-    /* Initialize tick before first render */
-    lv_tick_inc(200);
-    
-    /* Do an initial render to initialize display buffers */
-    printf("Initializing display buffers...\n");
-    fflush(stdout);
-    
-    /* Get or create default screen */
-    lv_obj_t * screen = lv_scr_act();
-    if(!screen) {
-        fprintf(stderr, "Error: Failed to get default screen\n");
-        return 1;
-    }
-    
-    /* Render empty screen first to initialize buffers */
-    lv_timer_handler();
-    usleep(100000);  /* 100ms */
-    
-    /* Render again to ensure buffers are ready */
-    lv_tick_inc(100);
-    lv_timer_handler();
-    usleep(100000);  /* 100ms */
-    
-    printf("Display buffers initialized\n");
-    fflush(stdout);
-    
-#elif LV_USE_LINUX_FBDEV
-    printf("Initializing framebuffer display driver...\n");
-    const char *videocard = "/dev/fb0";
-    lv_display_t * disp = lv_linux_fbdev_create();
-    if(!disp) {
-        fprintf(stderr, "Failed to create framebuffer display\n");
-        return 1;
-    }
-    lv_linux_fbdev_set_file(disp, videocard);
-    printf("Framebuffer display initialized: %s\n", videocard);
 #else
-    fprintf(stderr, "Error: No display driver configured (neither DRM nor FBDEV)\n");
+    fprintf(stderr, "Error: LV_USE_LINUX_FBDEV is not enabled\n");
+    fprintf(stderr, "Please enable framebuffer support in LVGL configuration\n");
     return 1;
 #endif
+
+    if(!disp) {
+        fprintf(stderr, "Error: Display driver initialization failed\n");
+        return 1;
+    }
+
+    /* Display initialization succeeded, continue with touchscreen setup */
     
-    /* Initialize input device (touchscreen) - for both DRM and FBDEV */
+    /* Initialize input device (touchscreen) */
 #if LV_USE_EVDEV
     printf("Initializing touchscreen input device...\n");
     fflush(stdout);
@@ -369,11 +344,11 @@ int main(int argc, char *argv[])
                 fflush(stdout);
                 indev = lv_evdev_create(LV_INDEV_TYPE_POINTER, touchscreen_paths[i]);
                 if(indev) {
-                    printf("  ✓ Touchscreen initialized: %s\n", touchscreen_paths[i]);
+                    printf("  Touchscreen initialized: %s\n", touchscreen_paths[i]);
                     fflush(stdout);
                     break;
                 } else {
-                    printf("  ✗ Failed to create evdev device for %s\n", touchscreen_paths[i]);
+                    printf("  Failed to create evdev device for %s\n", touchscreen_paths[i]);
                     fflush(stdout);
                 }
             }
@@ -393,11 +368,11 @@ int main(int argc, char *argv[])
                 
                 indev = lv_evdev_create(LV_INDEV_TYPE_POINTER, preferred_devices[p]);
                 if(indev) {
-                    printf("  ✓ Touchscreen initialized: %s\n", preferred_devices[p]);
+                    printf("  Touchscreen initialized: %s\n", preferred_devices[p]);
                     fflush(stdout);
                     break;
                 } else {
-                    printf("  ✗ Failed to create evdev device for %s (may not be a touchscreen)\n", preferred_devices[p]);
+                    printf("  Failed to create evdev device for %s (may not be a touchscreen)\n", preferred_devices[p]);
                     fflush(stdout);
                 }
             }
@@ -418,11 +393,11 @@ int main(int argc, char *argv[])
                     
                     indev = lv_evdev_create(LV_INDEV_TYPE_POINTER, event_path);
                     if(indev) {
-                        printf("  ✓ Touchscreen initialized: %s\n", event_path);
+                        printf("  Touchscreen initialized: %s\n", event_path);
                         fflush(stdout);
                         break;
                     } else {
-                        printf("  ✗ Failed to create evdev device for %s (may not be a touchscreen)\n", event_path);
+                        printf("  Failed to create evdev device for %s (may not be a touchscreen)\n", event_path);
                         fflush(stdout);
                     }
                 }
@@ -431,7 +406,7 @@ int main(int argc, char *argv[])
     }
     
     if(!indev) {
-        printf("  ⚠ Warning: No touchscreen device found, continuing without touch input\n");
+        printf("  Warning: No touchscreen device found, continuing without touch input\n");
         printf("  Tip: Check /dev/input/event* devices and ensure LV_USE_EVDEV is enabled\n");
         fflush(stdout);
     } else {
@@ -441,10 +416,10 @@ int main(int argc, char *argv[])
         g_indev = indev;
         
         /* Get display size for debugging */
-        lv_display_t * disp = lv_display_get_default();
-        if(disp) {
-            int32_t hor_res = lv_display_get_horizontal_resolution(disp);
-            int32_t ver_res = lv_display_get_vertical_resolution(disp);
+        lv_display_t * disp_check = lv_display_get_default();
+        if(disp_check) {
+            int32_t hor_res = lv_display_get_horizontal_resolution(disp_check);
+            int32_t ver_res = lv_display_get_vertical_resolution(disp_check);
             printf("  Display resolution: %dx%d\n", hor_res, ver_res);
         }
         
@@ -478,23 +453,38 @@ int main(int argc, char *argv[])
     fflush(stdout);
     
     /* Wait for display to be ready */
-    usleep(200000);  /* 200ms - longer delay for DRM */
+    usleep(100000);  /* 100ms - ensure framebuffer is ready */
+    
+    /* Verify display is still valid */
+    lv_display_t * disp_check = lv_display_get_default();
+    if(!disp_check) {
+        fprintf(stderr, "Error: Display is not available before rendering\n");
+        return 1;
+    }
+    
+    /* Verify screen is still valid */
+    lv_obj_t * screen_render = lv_scr_act();
+    if(!screen_render) {
+        fprintf(stderr, "Error: Screen is not available before rendering\n");
+        return 1;
+    }
     
     /* Increment tick before rendering */
-    lv_tick_inc(200);
+    lv_tick_inc(100);
     
-    /* First render with UI - this is where the crash might occur */
+    /* First render with UI */
     printf("  Calling lv_timer_handler() for first render...\n");
     fflush(stdout);
-    lv_timer_handler();  /* First render with UI */
+    lv_timer_handler();
     
     printf("  First render completed\n");
     fflush(stdout);
     
-    usleep(100000);  /* 100ms */
+    /* Brief delay for framebuffer */
+    usleep(50000);  /* 50ms */
     
     /* Render again to ensure UI is displayed */
-    lv_tick_inc(100);
+    lv_tick_inc(50);
     printf("  Calling lv_timer_handler() for second render...\n");
     fflush(stdout);
     lv_timer_handler();
@@ -552,7 +542,7 @@ int main(int argc, char *argv[])
         }
 #endif
         
-        /* Handle LVGL tasks - this may access DRM framebuffer */
+        /* Handle LVGL tasks */
         lv_timer_handler();
         
         /* Update progress bar if found (using global references) */
