@@ -4,7 +4,7 @@
 # 镜像: rk3506g-sd-core-image-minimal
 
 # 1. 设置环境
-cd /home/xuning/rk3506-new
+cd /home/xuning/yocto-rk3506-evm
 source poky/oe-init-build-env build
 
 # 2. 设置机器类型（如果 local.conf 中未设置）
@@ -22,7 +22,7 @@ bitbake rk3506g-sd-core-image-minimal
 # 镜像: rk3506b-emmc-core-image-minimal
 
 # 1. 设置环境
-cd /home/xuning/rk3506-new
+cd /home/xuning/yocto-rk3506-evm
 source poky/oe-init-build-env build
 
 # 2. 设置机器类型（在 local.conf 中设置）
@@ -49,7 +49,7 @@ bitbake linux-rockchip
 #只清理构建缓存，不清理下载的源码包
 
 # 1. 设置环境
-cd /home/xuning/rk3506-new
+cd /home/xuning/yocto-rk3506-evm
 source poky/oe-init-build-env build
 
 # 2. 清理内核
@@ -77,7 +77,7 @@ bitbake rk3506g-sd-core-image-minimal
 # 完全清理下载的包和构建的文件
 
 # 1. 设置环境
-cd /home/xuning/rk3506-new
+cd /home/xuning/yocto-rk3506-evm
 source poky/oe-init-build-env build
 
 # 2. 清理内核
@@ -126,7 +126,7 @@ bitbake python3-pyqt5
 # RK3506B: bitbake rk3506b-emmc-core-image-minimal
 
 
-cd /home/xuning/rk3506-new/build
+cd /home/xuning/yocto-rk3506-evm/build
 bitbake qtbase -c cleanall
 bitbake qtbase
 # 然后构建对应的镜像

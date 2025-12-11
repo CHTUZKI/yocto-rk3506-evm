@@ -23,7 +23,7 @@
 本项目采用标准的 Yocto 项目组织方式：
 
 ```
-rk3506-new/
+yocto-rk3506-evm/
 ├── poky/                  # Yocto 官方发行版核心层 (scarthgap)
 ├── meta-openembedded/     # OpenEmbedded 元层 (scarthgap)
 ├── meta-qt5/              # Qt5 支持层 (scarthgap)
@@ -78,10 +78,19 @@ minicom -D /dev/ttyUSB0 -b 1500000
 
 ## 快速开始
 
+### 构建准备
+
+在开始构建之前，需要先安装必要的依赖包：
+
+```bash
+sudo apt-get update
+sudo apt-get install build-essential chrpath cpio debianutils diffstat file gawk gcc git iputils-ping libacl1 lz4 locales python3 python3-jinja2 python3-pexpect python3-pip python3-subunit socat texinfo unzip wget xz-utils zstd
+```
+
 ### 初始化构建环境
 
 ```bash
-cd /home/xuning/rk3506-new
+cd /home/xuning/yocto-rk3506-evm
 source poky/oe-init-build-env build
 ```
 
@@ -94,8 +103,6 @@ bitbake rk3506g-sd-core-image-minimal
 构建完成后，镜像文件位于 `build/tmp/deploy/images/rockchip-rk3506g-core-evm/` 目录下。
 
 详细构建说明请参考 `硬件相关/rk3506g构建命令.txt`。
-
-**注意**: 构建命令文件中的路径需要更新为 `/home/xuning/rk3506-new/poky`。
 
 ## 登录信息
 
