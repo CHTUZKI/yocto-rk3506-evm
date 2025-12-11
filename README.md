@@ -1,5 +1,7 @@
 # RK3506 Yocto 项目
 
+rk3506B并未实现支持
+
 基于 Yocto Project 的 RK3506 嵌入式 Linux 开发环境。
 
 ## 功能展示
