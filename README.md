@@ -36,7 +36,7 @@ yocto-rk3506-evm/
 
 ### 层说明
 
-- **meta-rockchip**: 官方 Rockchip BSP 层，提供基础的 Rockchip SoC 支持
+- **meta-rockchip**: 三方 Rockchip BSP 层，提供基础的 Rockchip SoC 支持
 - **meta-rk3506-custom**: 本项目定制层，包含所有针对 RK3506 的自定义改动：
   - RK3506 机器配置和设备树
   - 内核 6.6 版本支持
